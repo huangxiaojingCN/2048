@@ -23,6 +23,8 @@ public class Play2048Group extends ViewGroup {
 
     private int mRow;
 
+    private Random mRandom;
+
     /**
      *  单元格矩阵.
      */
@@ -35,11 +37,19 @@ public class Play2048Group extends ViewGroup {
      */
     private int mEmptyCells;
 
+    private int mAllCells;
+
+    private int mCanMove;
+
     private int rand;
 
     private int oldX;
 
     private int oldY;
+
+    private int cancelX;
+
+    private int cancelY;
 
     private int x;
 
@@ -105,14 +115,14 @@ public class Play2048Group extends ViewGroup {
         }
 
         // 生成一个随机数，初始化数据.
-        Random random = new Random();
-        rand = random.nextInt(mRow * mColumn - 1);
+        mRandom = new Random();
+        rand = mRandom.nextInt(mRow * mColumn - 1);
         Model model = cells.get(rand);
         model.setNumber(2);
         CellView cellView = model.getCellView();
         cellView.setNumber(2);
 
-        mEmptyCells = mRow * mColumn - 1;
+        mAllCells = mRow * mColumn - 1;
     }
 
     @Override
@@ -186,8 +196,8 @@ public class Play2048Group extends ViewGroup {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                oldX = (int) event.getX();
-                oldY = (int) event.getY();
+                cancelX = (int) event.getX();
+                cancelY = (int) event.getY();
                break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -195,16 +205,16 @@ public class Play2048Group extends ViewGroup {
                 int y = (int) event.getY();
 
                 // 向右滑动.
-                if ((x - oldX) >= 50 && (y - oldY) < 50 && (y - oldY) > -50) {
+                if ((x - cancelX) >= 50 && (y - cancelY) < 50 && (y - cancelY) > -50) {
                     right();
-                } else if (x - oldX <= -50 && (y - oldY) < 50 && (y - oldY) > -50) { // 向左滑动
+                } else if (x - cancelX <= -50 && (y - cancelY) < 50 && (y - cancelY) > -50) { // 向左滑动
                     left();
                 }
 
                 // 向下
-                if (y - oldY >= 50 && (x - oldX) > -50 && (x - oldX) < 50) {
+                if (y - cancelY >= 50 && (x - cancelX) > -50 && (x - cancelX) < 50) {
                     lower();
-                } else if (y - oldY <= -50 && (x - oldX) > -50 && (x - oldX) < 50) { // 向上
+                } else if (y - cancelY <= -50 && (x - cancelX) > -50 && (x - cancelX) < 50) { // 向上
                     up();
                 }
 
@@ -217,7 +227,7 @@ public class Play2048Group extends ViewGroup {
     /**
      *  向上移动
      */
-    private void up() {
+    public void up() {
         int i = 0;
 
         for (int y = 0; y < mColumn; y++) {
@@ -253,6 +263,8 @@ public class Play2048Group extends ViewGroup {
                     for (int j = x; j > 0 && models[j - 1][y].getNumber() == 0 ; j--) {
                         models[j-1][y].setNumber(models[j][y].getNumber());
                         models[j][y].setNumber(0);
+
+                        mCanMove = 1;
                     }
                 }
             }
@@ -264,7 +276,7 @@ public class Play2048Group extends ViewGroup {
     /**
      *  向下移动
      */
-    private void lower() {
+    public void lower() {
         int i = 0;
         for (int x = mRow - 1; x >= 0;) {
             for (int y = 0; y < mColumn; y++) {
@@ -299,6 +311,8 @@ public class Play2048Group extends ViewGroup {
                     for (int j = x; j < 3 && models[j + 1][y].getNumber() == 0 ; j++) {
                         models[j+1][y].setNumber(models[j][y].getNumber());
                         models[j][y].setNumber(0);
+
+                        mCanMove = 1;
                     }
                 }
             }
@@ -310,7 +324,7 @@ public class Play2048Group extends ViewGroup {
     /**
      *  向左移动
      */
-    private void left() {
+    public void left() {
         int i;
         for (int x = 0; x < mRow; x++) {
             for (int y = 0; y < mColumn; ) {
@@ -354,6 +368,8 @@ public class Play2048Group extends ViewGroup {
                     for (int j = y; (j > 0) && models[x][j - 1].getNumber() == 0; j--) {
                         models[x][j - 1].setNumber(models[x][j].getNumber());
                         models[x][j].setNumber(0);
+
+                        mCanMove = 1;
                     }
                 }
             }
@@ -365,7 +381,7 @@ public class Play2048Group extends ViewGroup {
     /**
      *  向右移动
      */
-    private void right() {
+    public void right() {
         int i = 0;
         for (int x = 0; x < mRow; x++) {
             for (int y = mColumn - 1; y >= 0; ) {
@@ -399,12 +415,67 @@ public class Play2048Group extends ViewGroup {
                     for (int j = y; j < mColumn - 1 && models[x][j + 1].getNumber() == 0; j++) {
                         models[x][j + 1].setNumber(models[x][j].getNumber());
                         models[x][j].setNumber(0);
+
+                        mCanMove = 1;
                     }
                 }
             }
         }
 
         drawAll();
+    }
+
+    private void nextRand() {
+        if (mEmptyCells <= 0) {
+            gameOver();
+            return;
+        }
+
+        int newX, newY;
+
+        if (mEmptyCells != mAllCells || mCanMove == 1) {
+            do {
+                newX = mRandom.nextInt(mRow - 1);
+                newY = mRandom.nextInt(mColumn - 1);
+            } while (models[newX][newY].getNumber() != 0);
+
+            calcValue(newX, newY);
+        }
+    }
+
+    private void calcValue(int newX, int newY) {
+        int i, j, value;
+        int max;
+
+        max = getOne(newX, newY);
+        for (int x = 0; x < mRow; x++) {
+            for (int y = 0; y < mColumn; y++) {
+                if (models[x][y].getNumber() != 0) {
+                    value = getOne(x, y);
+                    if (value > max && oldX != x && oldY != y) {
+
+                    }
+                }
+            }
+        }
+    }
+
+    private int getOne(int newX, int newY) {
+        int value = 0;
+        if (newX -1 > 0) {
+            if (models[newX - 1][newY].getNumber() == 0) {
+                models[newX - 1][newY].setNumber(0);
+            } else {
+                models[newX - 1][newY].setNumber(value++);
+            }
+        }
+
+
+        return 0;
+    }
+
+    private void gameOver() {
+
     }
 
     private void drawAll() {

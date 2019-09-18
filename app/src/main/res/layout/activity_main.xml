@@ -7,10 +7,63 @@
     tools:context=".MainActivity">
 
     <com.hxj.a2048.Play2048Group
+        android:id="@+id/play2048"
+        android:layout_marginTop="50dp"
+        android:layout_centerHorizontal="true"
         android:background="@color/colorPrimary"
-        android:layout_centerInParent="true"
         app:row="4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <RelativeLayout
+        android:gravity="center"
+        android:layout_below="@id/play2048"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_centerHorizontal="true"
+            android:id="@+id/btn_top"
+            android:text="上"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:visibility="invisible"
+            android:layout_below="@id/btn_top"
+            android:id="@+id/center"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btn_right"
+            android:layout_below="@id/btn_top"
+            android:layout_centerHorizontal="true"
+            android:layout_toRightOf="@id/center"
+            android:text="右"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btn_left"
+            android:layout_below="@id/btn_top"
+            android:layout_toLeftOf="@id/center"
+            android:text="左"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btn_lower"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/center"
+            android:text="下"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </RelativeLayout>
+
+
 
 </RelativeLayout>
