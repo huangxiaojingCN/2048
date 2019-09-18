@@ -9,8 +9,7 @@
     <com.hxj.a2048.Play2048Group
         android:background="@color/colorPrimary"
         android:layout_centerInParent="true"
-        app:row="5"
-        app:column="3"
+        app:row="4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

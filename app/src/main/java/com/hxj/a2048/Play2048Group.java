@@ -2,11 +2,7 @@ package com.hxj.a2048;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -134,14 +130,9 @@ public class Play2048Group extends ViewGroup {
 
             int left = 0, top = 0, right = 0, bottom = 0;
 
+            // 每一行的最后一个索引, 0, 4, 8, 12...
             int temp = mRow * (i / mRow);
-            if (temp == 0) {
-                temp = mRow;
-            }
-
-            if (i - temp < 0) {
-                temp = 0;
-            }
+            // 每一行的开头位置.
             if (i == mRow * (i / mRow)) {
                 left = leftMargin;
                 right = width + leftMargin;
