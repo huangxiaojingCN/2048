@@ -16,11 +16,11 @@ public class CellView extends View {
 
     public static final String TAG = "CellView";
 
-    private final String number = "2048";
+    private String mNumber = "0";
 
     private TextPaint mTextPaint;
 
-    private Rect bounds;
+    private Rect bounds = new Rect();
 
     private Paint mPaint;
 
@@ -32,11 +32,9 @@ public class CellView extends View {
 
     private void initPaint() {
         mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setColor(Color.parseColor("#E451CD"));
-        mTextPaint.setTextSize(30);
+        mTextPaint.setTextSize(40);
         mTextPaint.setFakeBoldText(true);
-        bounds = new Rect();
-        mTextPaint.getTextBounds(number, 0, number.length(), bounds);
+        mTextPaint.getTextBounds(mNumber, 0, mNumber.length(), bounds);
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
@@ -55,12 +53,29 @@ public class CellView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        Log.i(TAG, "onDraw: " + getMeasuredWidth() + " height: " + getMeasuredHeight());
-
         canvas.drawRect(0, 0, getMeasuredWidth(), getMeasuredHeight(), mPaint);
 
-        canvas.drawText(number,
-                (float) (getMeasuredWidth() - bounds.width()) / 2,
-                (float) (getMeasuredHeight() / 2 + bounds.height() / 2), mTextPaint);
+        if (!mNumber.equalsIgnoreCase("0")) {
+            mTextPaint.setColor(Color.parseColor("#E451CD"));
+            canvas.drawText(mNumber,
+                    (float) (getMeasuredWidth() - bounds.width()) / 2,
+                    (float) (getMeasuredHeight() / 2 + bounds.height() / 2), mTextPaint);
+        } else {
+            mTextPaint.setColor(Color.parseColor("#E4CDCD"));
+            canvas.drawText(mNumber,
+                    (float) (getMeasuredWidth() - bounds.width()) / 2,
+                    (float) (getMeasuredHeight() / 2 + bounds.height() / 2), mTextPaint);
+        }
+    }
+
+    public void setNumber(int number) {
+        if (number == 0) {
+            this.mNumber = "0";
+        } else {
+            this.mNumber = number + "";
+        }
+
+        mTextPaint.getTextBounds(mNumber, 0, mNumber.length(), bounds);
+        invalidate();
     }
 }
