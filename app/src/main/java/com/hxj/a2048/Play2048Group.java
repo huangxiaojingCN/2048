@@ -123,6 +123,7 @@ public class Play2048Group extends ViewGroup {
         cellView.setNumber(2);
 
         mAllCells = mRow * mColumn - 1;
+        mEmptyCells = mAllCells;
     }
 
     @Override
@@ -271,6 +272,7 @@ public class Play2048Group extends ViewGroup {
         }
 
         drawAll();
+        nextRand();
     }
 
     /**
@@ -319,6 +321,7 @@ public class Play2048Group extends ViewGroup {
         }
 
         drawAll();
+        nextRand();
     }
 
     /**
@@ -376,6 +379,7 @@ public class Play2048Group extends ViewGroup {
         }
 
         drawAll();
+        nextRand();
     }
 
     /**
@@ -423,6 +427,7 @@ public class Play2048Group extends ViewGroup {
         }
 
         drawAll();
+        nextRand();
     }
 
     private void nextRand() {
@@ -439,7 +444,20 @@ public class Play2048Group extends ViewGroup {
                 newY = mRandom.nextInt(mColumn - 1);
             } while (models[newX][newY].getNumber() != 0);
 
-            calcValue(newX, newY);
+            //calcValue(newX, newY);
+
+            int temp = 0;
+
+            do {
+                temp = mRandom.nextInt(mRow - 1);
+            } while (temp == 0 || temp == 2);
+
+            Model model = models[newX][newY];
+            model.setNumber(temp + 1);
+            CellView cellView = model.getCellView();
+            cellView.setNumber(model.getNumber());
+
+            mEmptyCells--;
         }
     }
 
