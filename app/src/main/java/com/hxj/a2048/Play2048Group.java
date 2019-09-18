@@ -82,8 +82,6 @@ public class Play2048Group extends ViewGroup {
         models = new Model[mRow][mColumn];
         cells = new ArrayList<>(mRow * mColumn);
 
-        Random random = new Random();
-
         for (int i = 0; i < mRow * mColumn; i++) {
             CellView cellView = new CellView(getContext());
             MarginLayoutParams params = new MarginLayoutParams(
@@ -107,8 +105,8 @@ public class Play2048Group extends ViewGroup {
         }
 
         // 生成一个随机数，初始化数据.
+        Random random = new Random();
         rand = random.nextInt(mRow * mColumn - 1);
-
         Model model = cells.get(rand);
         model.setNumber(2);
         CellView cellView = model.getCellView();
@@ -220,14 +218,93 @@ public class Play2048Group extends ViewGroup {
      *  向上移动
      */
     private void up() {
+        int i = 0;
 
+        for (int y = 0; y < mColumn; y++) {
+            for (int x = 0; x < mRow; ) {
+                if (models[x][y].getNumber() == 0) {
+                    x++;
+                    continue;
+                } else {
+                    for(i = x + 1; i < mRow; i++) {
+                        if (models[i][y].getNumber() == 0) {
+                            continue;
+                        } else if (models[i][y].getNumber() == models[x][y].getNumber()) {
+                            models[x][y].setNumber(models[i][y].getNumber() + models[x][y].getNumber());
+                            models[i][y].setNumber(0);
+                            mEmptyCells++;
+
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    x = i;
+                }
+            }
+        }
+
+        for (int x = 0; x < mRow; x++) {
+            for (int y = 0; y < mColumn; y++) {
+                if (models[x][y].getNumber() == 0) {
+                    continue;
+                } else {
+                    for (int j = x; j > 0 && models[j - 1][y].getNumber() == 0 ; j--) {
+                        models[j-1][y].setNumber(models[j][y].getNumber());
+                        models[j][y].setNumber(0);
+                    }
+                }
+            }
+        }
+
+        drawAll();
     }
 
     /**
      *  向下移动
      */
     private void lower() {
+        int i = 0;
+        for (int x = mRow - 1; x >= 0;) {
+            for (int y = 0; y < mColumn; y++) {
+                if (models[x][y].getNumber() == 0) {
+                    x--;
+                    continue;
+                } else {
+                    for (i = x - 1;  i >= 0; i--) {
+                        if (models[i][y].getNumber() == 0) {
+                            continue;
+                        } else if (models[i][y].getNumber() == models[x][y].getNumber()) {
+                            models[x][y].setNumber(models[i][y].getNumber() + models[x][y].getNumber());
+                            models[i][y].setNumber(0);
 
+                            mEmptyCells++;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    x = i;
+                }
+            }
+        }
+
+        for (int x = 0; x < mRow; x++) {
+            for (int y = 0; y < mColumn; y++) {
+                if (models[x][y].getNumber() == 0) {
+                    continue;
+                } else {
+                    for (int j = x; j < 3 && models[j + 1][y].getNumber() == 0 ; j++) {
+                        models[j+1][y].setNumber(models[j][y].getNumber());
+                        models[j][y].setNumber(0);
+                    }
+                }
+            }
+        }
+
+        drawAll();
     }
 
     /**
