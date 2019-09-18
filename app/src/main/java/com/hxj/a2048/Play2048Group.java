@@ -278,8 +278,8 @@ public class Play2048Group extends ViewGroup {
      */
     public void lower() {
         int i = 0;
-        for (int x = mRow - 1; x >= 0;) {
-            for (int y = 0; y < mColumn; y++) {
+        for (int y = 0; y < mColumn; y++) {
+            for (int x = mRow - 1; x >= 0;) {
                 if (models[x][y].getNumber() == 0) {
                     x--;
                     continue;
