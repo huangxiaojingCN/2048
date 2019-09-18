@@ -101,6 +101,9 @@ public class Play2048Group extends ViewGroup {
         int height = 0;
 
         int count = getChildCount();
+        MarginLayoutParams layoutParams = (MarginLayoutParams) getChildAt(0).getLayoutParams();
+        int leftMargin = layoutParams.leftMargin;
+        int topMargin = layoutParams.topMargin;
 
         for (int i = 0; i < count; i++) {
             CellView cellView = (CellView) getChildAt(i);
@@ -113,70 +116,101 @@ public class Play2048Group extends ViewGroup {
             height += childH;
         }
 
-        Log.i(TAG, "onMeasure width: " + width + " height: " + height);
-        setMeasuredDimension(width / 4, height / 4);
+        setMeasuredDimension(width / 4 + (mRow + 1) * leftMargin,
+                height / 4 + (mColumn + 1) * topMargin);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int count = getChildCount();
-        Log.i(TAG, "onLayout count: " + count);
         for (int i = 0; i < count; i++) {
             CellView cellView = (CellView) getChildAt(i);
+            MarginLayoutParams layoutParams = (MarginLayoutParams) cellView.getLayoutParams();
+            int leftMargin = layoutParams.leftMargin;
+            int topMargin = layoutParams.topMargin;
 
             int width = cellView.getMeasuredWidth();
             int height = cellView.getMeasuredHeight();
 
             int left = 0, top = 0, right = 0, bottom = 0;
-            if (i < 4) {
-               if (i == 0) {
-                   left = 0;
-                   right = width;
-               } else {
-                   left = width * i;
-                   right = width * (i + 1);
-               }
 
-               top = 0;
-               bottom = height;
-
-            } else if (i < 8) {
-                if (i == 4) {
-                    left = 0;
-                    right = width;
-                } else {
-                    left = width * (i - 4);
-                    right = width + left;
-                }
-
-                top = height;
-                bottom = height * 2;
-            } else if (i < 12) {
-                if (i == 8) {
-                    left = 0;
-                    right = width;
-                } else {
-                    left = width * (i - 8);
-                    right = width + left;
-                }
-
-                top = height * 2;
-                bottom = height * 3;
-            } else {
-                if (i == 12) {
-                    left = 0;
-                    right = width;
-                } else {
-                    left = width * (i - 12);
-                    right = width + left;
-                }
-
-                top = height * 3;
-                bottom = height * 4;
+            int temp = mRow * (i / mRow);
+            if (temp == 0) {
+                temp = mRow;
             }
 
-            Log.i(TAG, "onLayout 1 - 4:  " + i +  " left:" + left
-                    + " top: " + top + " right: " + right + " bottom: " + bottom);
+            if (i - temp < 0) {
+                temp = 0;
+            }
+            if (i == mRow * (i / mRow)) {
+                left = leftMargin;
+                right = width + leftMargin;
+            } else {
+                left = leftMargin * (i - temp + 1) + width * (i - temp);
+                right = leftMargin * (i - temp + 1) + + width * (i - temp + 1);
+            }
+
+            int row = i / mRow;
+            if (row == 0) {
+                top = topMargin;
+                bottom = height + topMargin;
+            } else {
+                top = height * row + topMargin * row + topMargin;
+                bottom = height * (row + 1) + (row + 1) * topMargin;
+            }
+
+            //bottom = height * (temp + 1) + topMargin * (i % mRow + i + 1);
+
+            Log.i(TAG, "onLayout left: " + left + " top: " + top
+            + " right: " + right + " bottom: " + bottom);
+            // -----------
+            /*if (i < mRow) {
+               if (i == 0) {
+                   left = leftMargin;
+                   right = leftMargin + width;
+               } else {
+                   left = leftMargin * (i + 1) + width * i;
+                   right = leftMargin * (i + 1) + width * (i + 1);
+               }
+
+               top = topMargin;
+               bottom = height + topMargin;
+
+            } else if (i < 2 * mRow) {
+                if (i == mRow) {
+                    left = leftMargin;
+                    right = leftMargin + width;
+                } else {
+                    left = leftMargin * (i - 4 + 1) + width * (i - 4);
+                    right = leftMargin * (i - 4 + 1) + width * (i - 4 + 1);
+                }
+
+                top = height + topMargin * 2;
+                bottom = height * 2 + topMargin * 2;
+            } else if (i < 3 * mRow) {
+                if (i == 2 * mRow) {
+                    left = leftMargin;
+                    right = leftMargin + width;
+                } else {
+                    left = leftMargin * (i - 8 + 1) + width * (i - 8);
+                    right = leftMargin * (i - 8 + 1) + width * (i - 8 + 1);
+                }
+
+                top = height * 2 + topMargin * 3;
+                bottom = height * 3 + topMargin * 3;
+            } else {
+                if (i == 3 * mRow) {
+                    left = leftMargin;
+                    right = leftMargin + width;
+                } else {
+                    left = leftMargin * (i - 12 + 1) + width * (i - 12);
+                    right = leftMargin * (i - 12 + 1) + width * (i - 12 + 1);
+                }
+
+                top = height * 3 + topMargin * 4;
+                bottom = height * 4 + topMargin * 4;
+            }*/
+
             cellView.layout(left, top, right, bottom);
         }
     }
