@@ -116,8 +116,8 @@ public class Play2048Group extends ViewGroup {
             height += childH;
         }
 
-        setMeasuredDimension(width / 4 + (mRow + 1) * leftMargin,
-                height / 4 + (mColumn + 1) * topMargin);
+        setMeasuredDimension(width / mRow + (mRow + 1) * leftMargin,
+                height / mRow + (mColumn + 1) * topMargin);
     }
 
     @Override
@@ -158,58 +158,6 @@ public class Play2048Group extends ViewGroup {
                 top = height * row + topMargin * row + topMargin;
                 bottom = height * (row + 1) + (row + 1) * topMargin;
             }
-
-            //bottom = height * (temp + 1) + topMargin * (i % mRow + i + 1);
-
-            Log.i(TAG, "onLayout left: " + left + " top: " + top
-            + " right: " + right + " bottom: " + bottom);
-            // -----------
-            /*if (i < mRow) {
-               if (i == 0) {
-                   left = leftMargin;
-                   right = leftMargin + width;
-               } else {
-                   left = leftMargin * (i + 1) + width * i;
-                   right = leftMargin * (i + 1) + width * (i + 1);
-               }
-
-               top = topMargin;
-               bottom = height + topMargin;
-
-            } else if (i < 2 * mRow) {
-                if (i == mRow) {
-                    left = leftMargin;
-                    right = leftMargin + width;
-                } else {
-                    left = leftMargin * (i - 4 + 1) + width * (i - 4);
-                    right = leftMargin * (i - 4 + 1) + width * (i - 4 + 1);
-                }
-
-                top = height + topMargin * 2;
-                bottom = height * 2 + topMargin * 2;
-            } else if (i < 3 * mRow) {
-                if (i == 2 * mRow) {
-                    left = leftMargin;
-                    right = leftMargin + width;
-                } else {
-                    left = leftMargin * (i - 8 + 1) + width * (i - 8);
-                    right = leftMargin * (i - 8 + 1) + width * (i - 8 + 1);
-                }
-
-                top = height * 2 + topMargin * 3;
-                bottom = height * 3 + topMargin * 3;
-            } else {
-                if (i == 3 * mRow) {
-                    left = leftMargin;
-                    right = leftMargin + width;
-                } else {
-                    left = leftMargin * (i - 12 + 1) + width * (i - 12);
-                    right = leftMargin * (i - 12 + 1) + width * (i - 12 + 1);
-                }
-
-                top = height * 3 + topMargin * 4;
-                bottom = height * 4 + topMargin * 4;
-            }*/
 
             cellView.layout(left, top, right, bottom);
         }
