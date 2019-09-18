@@ -267,7 +267,6 @@ public class Play2048Group extends ViewGroup {
             }
         }
 
-        Log.i(TAG, "left i: " + y);
         for (int x = 0; x < mRow; x++) {
             for (int y = 0; y < mColumn; y++) {
                 Model model = models[x][y];
@@ -286,6 +285,51 @@ public class Play2048Group extends ViewGroup {
         drawAll();
     }
 
+    /**
+     *  向右移动
+     */
+    private void right() {
+        int i = 0;
+        for (int x = 0; x < mRow; x++) {
+            for (int y = mColumn - 1; y >= 0; ) {
+                if (models[x][y].getNumber() == 0) {
+                    y--;
+                    continue;
+                } else {
+                    for (i = y - 1; i >= 0; i--) {
+                        if (models[x][i].getNumber() == 0) {
+                            continue;
+                        } else if (models[x][i].getNumber() == models[x][y].getNumber()) {
+                            models[x][y].setNumber(models[x][i].getNumber() + models[x][y].getNumber());
+                            models[x][i].setNumber(0);
+                            mEmptyCells++;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+
+                    y = i;
+                }
+            }
+        }
+
+        for (int x = 0; x < mRow; x++) {
+            for (int y = mColumn - 1; y >= 0; y--) {
+                if (models[x][y].getNumber() == 0) {
+                    continue;
+                } else {
+                    for (int j = y; j < mColumn - 1 && models[x][j + 1].getNumber() == 0; j++) {
+                        models[x][j + 1].setNumber(models[x][j].getNumber());
+                        models[x][j].setNumber(0);
+                    }
+                }
+            }
+        }
+
+        drawAll();
+    }
+
     private void drawAll() {
         for (int x = 0; x < mRow; x++) {
             for (int y = 0; y < mColumn; y++) {
@@ -294,12 +338,5 @@ public class Play2048Group extends ViewGroup {
                 model.getCellView().setNumber(number);
             }
         }
-    }
-
-    /**
-     *  向右移动
-     */
-    private void right() {
-
     }
 }
