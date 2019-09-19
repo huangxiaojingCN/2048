@@ -1,10 +1,17 @@
 package com.hxj.a2048;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -19,6 +26,8 @@ import java.util.concurrent.Executors;
 public class Play2048Group extends ViewGroup {
 
     public static final String TAG = "Play2048Group";
+
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private int mColumn;
 
@@ -78,7 +87,6 @@ public class Play2048Group extends ViewGroup {
         try {
             mRow = a.getInteger(R.styleable.Play2048Group_row, 4);
             mColumn = a.getInteger(R.styleable.Play2048Group_column, 4);
-
             // 保持长宽相等排列, 取传入的最大值
             if (mRow > mColumn) {
                 mColumn = mRow;
@@ -131,7 +139,6 @@ public class Play2048Group extends ViewGroup {
 
         mAllCells = mRow * mColumn - 1;
         mEmptyCells = mAllCells;
-
 
         mExecutorService = Executors.newCachedThreadPool();
 
@@ -504,9 +511,22 @@ public class Play2048Group extends ViewGroup {
             model.setNumber(temp + 1);
             CellView cellView = model.getCellView();
             cellView.setNumber(model.getNumber());
+            playAnimation(cellView);
 
             mEmptyCells--;
         }
+    }
+
+    private void playAnimation(final CellView cellView) {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ObjectAnimator animator = ObjectAnimator.ofFloat(
+                        cellView, "alpha", 0.0f, 1.0f);
+                animator.setDuration(500);
+                animator.start();
+            }
+        });
     }
 
     private void calcValue(int newX, int newY) {

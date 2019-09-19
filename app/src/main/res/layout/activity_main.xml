@@ -10,7 +10,7 @@
         android:id="@+id/play2048"
         android:layout_marginTop="50dp"
         android:layout_centerHorizontal="true"
-        android:background="@color/colorPrimary"
+        android:background="#538AEB"
         app:row="4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

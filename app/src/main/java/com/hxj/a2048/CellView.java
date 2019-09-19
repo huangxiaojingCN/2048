@@ -78,4 +78,5 @@ public class CellView extends View {
         mTextPaint.getTextBounds(mNumber, 0, mNumber.length(), bounds);
         postInvalidate();
     }
+
 }
