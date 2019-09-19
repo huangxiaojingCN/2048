@@ -56,10 +56,6 @@ public class Play2048Group extends ViewGroup {
 
     private int cancelY;
 
-    private int x;
-
-    private int y;
-
     private int maxValue;
 
     private Runnable leftRunnable;
