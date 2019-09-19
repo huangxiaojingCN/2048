@@ -244,9 +244,7 @@ public class Play2048Group extends ViewGroup {
             upRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "run up: ");
                     int i = 0;
-
                     for (int y = 0; y < mColumn; y++) {
                         for (int x = 0; x < mRow; ) {
                             if (models[x][y].getNumber() == 0) {
@@ -304,7 +302,6 @@ public class Play2048Group extends ViewGroup {
             lowerRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "run lower: ");
                     int i = 0;
                     for (int y = 0; y < mColumn; y++) {
                         for (int x = mRow - 1; x >= 0; ) {
@@ -363,7 +360,6 @@ public class Play2048Group extends ViewGroup {
             leftRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "run left: ");
                     int i;
                     for (int x = 0; x < mRow; x++) {
                         for (int y = 0; y < mColumn; ) {
@@ -431,7 +427,6 @@ public class Play2048Group extends ViewGroup {
             rightRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "run right: ");
                     int i = 0;
                     for (int x = 0; x < mRow; x++) {
                         for (int y = mColumn - 1; y >= 0; ) {
@@ -484,7 +479,6 @@ public class Play2048Group extends ViewGroup {
     }
 
     private void nextRand() {
-        Log.i(TAG, "nextRand mEmptyCells: " + mEmptyCells);
         if (mEmptyCells <= 0) {
             gameOver();
             return;
@@ -506,16 +500,12 @@ public class Play2048Group extends ViewGroup {
                 temp = mRandom.nextInt(mRow);
             } while (temp == 0 || temp == 2);
 
-            Log.i(TAG, "nextRand temp:  " + temp + " newX: " + newX + " newY: " + newY);
-
             Model model = models[newX][newY];
             model.setNumber(temp + 1);
             CellView cellView = model.getCellView();
             cellView.setNumber(model.getNumber());
 
             mEmptyCells--;
-
-            Log.i(TAG, "还剩下 mEmptyCells: " + mEmptyCells);
         }
     }
 
