@@ -1,17 +1,12 @@
 package com.hxj.a2048;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -53,9 +48,9 @@ public class Play2048Group extends ViewGroup {
 
     private int rand;
 
-    private int oldX;
+    private int maxValueX;
 
-    private int oldY;
+    private int maxValueY;
 
     private int cancelX;
 
@@ -65,11 +60,15 @@ public class Play2048Group extends ViewGroup {
 
     private int y;
 
+    private int maxValue;
+
     private Runnable leftRunnable;
     private Runnable rightRunnable;
     private Runnable lowerRunnable;
     private Runnable upRunnable;
     private ExecutorService mExecutorService;
+
+    private OnGameOverListener mOnGameOverListener;
 
     public Play2048Group(Context context) {
         this(context, null);
@@ -485,8 +484,21 @@ public class Play2048Group extends ViewGroup {
 
     }
 
+    private void playAnimation(final CellView cellView) {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ObjectAnimator animator = ObjectAnimator.ofFloat(
+                        cellView, "alpha", 0.0f, 1.0f);
+                animator.setDuration(300);
+                animator.start();
+            }
+        });
+    }
+
     private void nextRand() {
         if (mEmptyCells <= 0) {
+            findMaxValue();
             gameOver();
             return;
         }
@@ -498,8 +510,6 @@ public class Play2048Group extends ViewGroup {
                 newX = mRandom.nextInt(mRow);
                 newY = mRandom.nextInt(mColumn);
             } while (models[newX][newY].getNumber() != 0);
-
-            //calcValue(newX, newY);
 
             int temp = 0;
 
@@ -517,51 +527,31 @@ public class Play2048Group extends ViewGroup {
         }
     }
 
-    private void playAnimation(final CellView cellView) {
-        mainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                ObjectAnimator animator = ObjectAnimator.ofFloat(
-                        cellView, "alpha", 0.0f, 1.0f);
-                animator.setDuration(500);
-                animator.start();
-            }
-        });
-    }
-
-    private void calcValue(int newX, int newY) {
-        int i, j, value;
-        int max;
-
-        max = getOne(newX, newY);
+    private void findMaxValue() {
         for (int x = 0; x < mRow; x++) {
             for (int y = 0; y < mColumn; y++) {
-                if (models[x][y].getNumber() != 0) {
-                    value = getOne(x, y);
-                    if (value > max && oldX != x && oldY != y) {
+                if (models[x][y].getNumber() == 0) {
+                    continue;
+                }
 
-                    }
+                if (models[x][y].getNumber() > maxValue) {
+                    maxValue = models[x][y].getNumber();
+                    maxValueX = x;
+                    maxValueY = y;
                 }
             }
         }
     }
 
-    private int getOne(int newX, int newY) {
-        int value = 0;
-        if (newX -1 > 0) {
-            if (models[newX - 1][newY].getNumber() == 0) {
-                models[newX - 1][newY].setNumber(0);
-            } else {
-                models[newX - 1][newY].setNumber(value++);
-            }
-        }
-
-
-        return 0;
-    }
-
     private void gameOver() {
-
+        if (mOnGameOverListener != null) {
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mOnGameOverListener.onFinish(maxValue, maxValueX, maxValueY);
+                }
+            });
+        }
     }
 
     private void drawAll() {
@@ -572,5 +562,14 @@ public class Play2048Group extends ViewGroup {
                 model.getCellView().setNumber(number);
             }
         }
+    }
+
+    public interface OnGameOverListener {
+
+        void onFinish(int maxValue, int x, int y);
+    }
+
+    public void setOnGameOverListener(OnGameOverListener l) {
+        this.mOnGameOverListener = l;
     }
 }

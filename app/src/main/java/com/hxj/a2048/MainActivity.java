@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -24,6 +25,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lower.setOnClickListener(this);
         left.setOnClickListener(this);
         right.setOnClickListener(this);
+
+        play2048Group.setOnGameOverListener(new Play2048Group.OnGameOverListener() {
+
+            @Override
+            public void onFinish(int maxValue, int x, int y) {
+                Toast.makeText(MainActivity.this, "游戏结束： 最大值为: " + maxValue, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
