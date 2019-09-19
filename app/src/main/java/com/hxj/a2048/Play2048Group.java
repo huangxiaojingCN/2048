@@ -10,7 +10,8 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *  存储所有单元 cellView.
@@ -54,6 +55,12 @@ public class Play2048Group extends ViewGroup {
     private int x;
 
     private int y;
+
+    private Runnable leftRunnable;
+    private Runnable rightRunnable;
+    private Runnable lowerRunnable;
+    private Runnable upRunnable;
+    private ExecutorService mExecutorService;
 
     public Play2048Group(Context context) {
         this(context, null);
@@ -124,6 +131,10 @@ public class Play2048Group extends ViewGroup {
 
         mAllCells = mRow * mColumn - 1;
         mEmptyCells = mAllCells;
+
+
+        mExecutorService = Executors.newCachedThreadPool();
+
     }
 
     @Override
@@ -229,208 +240,251 @@ public class Play2048Group extends ViewGroup {
      *  向上移动
      */
     public void up() {
-        int i = 0;
+        if (upRunnable == null) {
+            upRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "run up: ");
+                    int i = 0;
 
-        for (int y = 0; y < mColumn; y++) {
-            for (int x = 0; x < mRow; ) {
-                if (models[x][y].getNumber() == 0) {
-                    x++;
-                    continue;
-                } else {
-                    for(i = x + 1; i < mRow; i++) {
-                        if (models[i][y].getNumber() == 0) {
-                            continue;
-                        } else if (models[i][y].getNumber() == models[x][y].getNumber()) {
-                            models[x][y].setNumber(models[i][y].getNumber() + models[x][y].getNumber());
-                            models[i][y].setNumber(0);
-                            mEmptyCells++;
+                    for (int y = 0; y < mColumn; y++) {
+                        for (int x = 0; x < mRow; ) {
+                            if (models[x][y].getNumber() == 0) {
+                                x++;
+                                continue;
+                            } else {
+                                for (i = x + 1; i < mRow; i++) {
+                                    if (models[i][y].getNumber() == 0) {
+                                        continue;
+                                    } else if (models[i][y].getNumber() == models[x][y].getNumber()) {
+                                        models[x][y].setNumber(models[i][y].getNumber() + models[x][y].getNumber());
+                                        models[i][y].setNumber(0);
+                                        mEmptyCells++;
 
-                            break;
-                        } else {
-                            break;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                x = i;
+                            }
                         }
                     }
 
-                    x = i;
-                }
-            }
-        }
+                    for (int x = 0; x < mRow; x++) {
+                        for (int y = 0; y < mColumn; y++) {
+                            if (models[x][y].getNumber() == 0) {
+                                continue;
+                            } else {
+                                for (int j = x; j > 0 && models[j - 1][y].getNumber() == 0; j--) {
+                                    models[j - 1][y].setNumber(models[j][y].getNumber());
+                                    models[j][y].setNumber(0);
 
-        for (int x = 0; x < mRow; x++) {
-            for (int y = 0; y < mColumn; y++) {
-                if (models[x][y].getNumber() == 0) {
-                    continue;
-                } else {
-                    for (int j = x; j > 0 && models[j - 1][y].getNumber() == 0 ; j--) {
-                        models[j-1][y].setNumber(models[j][y].getNumber());
-                        models[j][y].setNumber(0);
-
-                        mCanMove = 1;
+                                    mCanMove = 1;
+                                }
+                            }
+                        }
                     }
+
+                    drawAll();
+                    nextRand();
                 }
-            }
+            };
         }
 
-        drawAll();
-        nextRand();
+        mExecutorService.execute(upRunnable);
     }
 
     /**
      *  向下移动
      */
     public void lower() {
-        int i = 0;
-        for (int y = 0; y < mColumn; y++) {
-            for (int x = mRow - 1; x >= 0;) {
-                if (models[x][y].getNumber() == 0) {
-                    x--;
-                    continue;
-                } else {
-                    for (i = x - 1;  i >= 0; i--) {
-                        if (models[i][y].getNumber() == 0) {
-                            continue;
-                        } else if (models[i][y].getNumber() == models[x][y].getNumber()) {
-                            models[x][y].setNumber(models[i][y].getNumber() + models[x][y].getNumber());
-                            models[i][y].setNumber(0);
+        if (lowerRunnable == null) {
+            lowerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "run lower: ");
+                    int i = 0;
+                    for (int y = 0; y < mColumn; y++) {
+                        for (int x = mRow - 1; x >= 0; ) {
+                            if (models[x][y].getNumber() == 0) {
+                                x--;
+                                continue;
+                            } else {
+                                for (i = x - 1; i >= 0; i--) {
+                                    if (models[i][y].getNumber() == 0) {
+                                        continue;
+                                    } else if (models[i][y].getNumber() == models[x][y].getNumber()) {
+                                        models[x][y].setNumber(models[i][y].getNumber() + models[x][y].getNumber());
+                                        models[i][y].setNumber(0);
 
-                            mEmptyCells++;
-                            break;
-                        } else {
-                            break;
+                                        mEmptyCells++;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                x = i;
+                            }
                         }
                     }
 
-                    x = i;
-                }
-            }
-        }
+                    for (int x = 0; x < mRow; x++) {
+                        for (int y = 0; y < mColumn; y++) {
+                            if (models[x][y].getNumber() == 0) {
+                                continue;
+                            } else {
+                                for (int j = x; j < 3 && models[j + 1][y].getNumber() == 0; j++) {
+                                    models[j + 1][y].setNumber(models[j][y].getNumber());
+                                    models[j][y].setNumber(0);
 
-        for (int x = 0; x < mRow; x++) {
-            for (int y = 0; y < mColumn; y++) {
-                if (models[x][y].getNumber() == 0) {
-                    continue;
-                } else {
-                    for (int j = x; j < 3 && models[j + 1][y].getNumber() == 0 ; j++) {
-                        models[j+1][y].setNumber(models[j][y].getNumber());
-                        models[j][y].setNumber(0);
-
-                        mCanMove = 1;
+                                    mCanMove = 1;
+                                }
+                            }
+                        }
                     }
+
+                    drawAll();
+                    nextRand();
                 }
-            }
+            };
         }
 
-        drawAll();
-        nextRand();
+        mExecutorService.execute(lowerRunnable);
     }
 
     /**
      *  向左移动
      */
     public void left() {
-        int i;
-        for (int x = 0; x < mRow; x++) {
-            for (int y = 0; y < mColumn; ) {
-                Model model = models[x][y];
-                int number = model.getNumber();
-                if (number == 0) {
-                    y++;
-                    continue;
-                } else {
-                    // 找到不为零的位置. 往后找不为零的数进行运算.
-                    for (i = y + 1; i < mColumn; i++) {
-                        Model model1 = models[x][i];
-                        int number1 = model1.getNumber();
-                        if (number1 == 0) {
-                            continue;
-                        } else if (number == number1){
-                            // 如果找到和这个相同的，则进行合并运算（相加）。
-                            int temp = number + number1;
-                            model.setNumber(temp);
-                            model1.setNumber(0);
+        if (leftRunnable == null) {
+            leftRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "run left: ");
+                    int i;
+                    for (int x = 0; x < mRow; x++) {
+                        for (int y = 0; y < mColumn; ) {
+                            Model model = models[x][y];
+                            int number = model.getNumber();
+                            if (number == 0) {
+                                y++;
+                                continue;
+                            } else {
+                                // 找到不为零的位置. 往后找不为零的数进行运算.
+                                for (i = y + 1; i < mColumn; i++) {
+                                    Model model1 = models[x][i];
+                                    int number1 = model1.getNumber();
+                                    if (number1 == 0) {
+                                        continue;
+                                    } else if (number == number1) {
+                                        // 如果找到和这个相同的，则进行合并运算（相加）。
+                                        int temp = number + number1;
+                                        model.setNumber(temp);
+                                        model1.setNumber(0);
 
-                            mEmptyCells++;
-                            break;
-                        } else {
-                            break;
+                                        mEmptyCells++;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                y = i;
+                            }
                         }
                     }
 
-                    y = i;
-                }
-            }
-        }
+                    for (int x = 0; x < mRow; x++) {
+                        for (int y = 0; y < mColumn; y++) {
+                            Model model = models[x][y];
+                            int number = model.getNumber();
+                            if (number == 0) {
+                                continue;
+                            } else {
+                                for (int j = y; (j > 0) && models[x][j - 1].getNumber() == 0; j--) {
+                                    models[x][j - 1].setNumber(models[x][j].getNumber());
+                                    models[x][j].setNumber(0);
 
-        for (int x = 0; x < mRow; x++) {
-            for (int y = 0; y < mColumn; y++) {
-                Model model = models[x][y];
-                int number = model.getNumber();
-                if (number == 0) {
-                    continue;
-                } else {
-                    for (int j = y; (j > 0) && models[x][j - 1].getNumber() == 0; j--) {
-                        models[x][j - 1].setNumber(models[x][j].getNumber());
-                        models[x][j].setNumber(0);
-
-                        mCanMove = 1;
+                                    mCanMove = 1;
+                                }
+                            }
+                        }
                     }
+
+                    drawAll();
+                    nextRand();
                 }
-            }
+            };
         }
 
-        drawAll();
-        nextRand();
+        mExecutorService.execute(leftRunnable);
     }
 
     /**
      *  向右移动
      */
     public void right() {
-        int i = 0;
-        for (int x = 0; x < mRow; x++) {
-            for (int y = mColumn - 1; y >= 0; ) {
-                if (models[x][y].getNumber() == 0) {
-                    y--;
-                    continue;
-                } else {
-                    for (i = y - 1; i >= 0; i--) {
-                        if (models[x][i].getNumber() == 0) {
-                            continue;
-                        } else if (models[x][i].getNumber() == models[x][y].getNumber()) {
-                            models[x][y].setNumber(models[x][i].getNumber() + models[x][y].getNumber());
-                            models[x][i].setNumber(0);
-                            mEmptyCells++;
-                            break;
-                        } else {
-                            break;
+        if (rightRunnable == null) {
+            rightRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "run right: ");
+                    int i = 0;
+                    for (int x = 0; x < mRow; x++) {
+                        for (int y = mColumn - 1; y >= 0; ) {
+                            if (models[x][y].getNumber() == 0) {
+                                y--;
+                                continue;
+                            } else {
+                                for (i = y - 1; i >= 0; i--) {
+                                    if (models[x][i].getNumber() == 0) {
+                                        continue;
+                                    } else if (models[x][i].getNumber() == models[x][y].getNumber()) {
+                                        models[x][y].setNumber(models[x][i].getNumber() + models[x][y].getNumber());
+                                        models[x][i].setNumber(0);
+
+                                        mEmptyCells++;
+                                        break;
+                                    } else {
+                                        break;
+                                    }
+                                }
+
+                                y = i;
+                            }
                         }
                     }
 
-                    y = i;
-                }
-            }
-        }
+                    for (int x = 0; x < mRow; x++) {
+                        for (int y = mColumn - 1; y >= 0; y--) {
+                            if (models[x][y].getNumber() == 0) {
+                                continue;
+                            } else {
+                                for (int j = y; j < mColumn - 1 && models[x][j + 1].getNumber() == 0; j++) {
+                                    models[x][j + 1].setNumber(models[x][j].getNumber());
+                                    models[x][j].setNumber(0);
 
-        for (int x = 0; x < mRow; x++) {
-            for (int y = mColumn - 1; y >= 0; y--) {
-                if (models[x][y].getNumber() == 0) {
-                    continue;
-                } else {
-                    for (int j = y; j < mColumn - 1 && models[x][j + 1].getNumber() == 0; j++) {
-                        models[x][j + 1].setNumber(models[x][j].getNumber());
-                        models[x][j].setNumber(0);
-
-                        mCanMove = 1;
+                                    mCanMove = 1;
+                                }
+                            }
+                        }
                     }
+
+                    drawAll();
+                    nextRand();
                 }
-            }
+            };
         }
 
-        drawAll();
-        nextRand();
+        mExecutorService.execute(rightRunnable);
+
     }
 
     private void nextRand() {
+        Log.i(TAG, "nextRand mEmptyCells: " + mEmptyCells);
         if (mEmptyCells <= 0) {
             gameOver();
             return;
@@ -452,12 +506,16 @@ public class Play2048Group extends ViewGroup {
                 temp = mRandom.nextInt(mRow - 1);
             } while (temp == 0 || temp == 2);
 
+            Log.i(TAG, "nextRand temp:  " + temp + " newX: " + newX + " newY: " + newY);
+
             Model model = models[newX][newY];
             model.setNumber(temp + 1);
             CellView cellView = model.getCellView();
             cellView.setNumber(model.getNumber());
 
             mEmptyCells--;
+
+            Log.i(TAG, "还剩下 mEmptyCells: " + mEmptyCells);
         }
     }
 
