@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -16,10 +18,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         play2048Group = findViewById(R.id.play2048);
-        Button top = findViewById(R.id.btn_top);
-        Button lower = findViewById(R.id.btn_lower);
-        Button left = findViewById(R.id.btn_left);
-        Button right = findViewById(R.id.btn_right);
+        ImageView top = findViewById(R.id.btn_top);
+        ImageView lower = findViewById(R.id.btn_lower);
+        ImageView left = findViewById(R.id.btn_left);
+        ImageView right = findViewById(R.id.btn_right);
+
+        final TextView score = findViewById(R.id.tv_score);
 
         top.setOnClickListener(this);
         lower.setOnClickListener(this);
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onFinish(int maxValue, int x, int y) {
-                Toast.makeText(MainActivity.this, "游戏结束： 最大值为: " + maxValue, Toast.LENGTH_SHORT).show();
+                score.setText("游戏得分： " + maxValue);
             }
         });
     }
