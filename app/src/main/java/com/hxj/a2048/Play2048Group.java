@@ -123,7 +123,7 @@ public class Play2048Group extends ViewGroup {
 
         // 生成一个随机数，初始化数据.
         mRandom = new Random();
-        rand = mRandom.nextInt(mRow * mColumn - 1);
+        rand = mRandom.nextInt(mRow * mColumn);
         Model model = cells.get(rand);
         model.setNumber(2);
         CellView cellView = model.getCellView();
@@ -494,8 +494,8 @@ public class Play2048Group extends ViewGroup {
 
         if (mEmptyCells != mAllCells || mCanMove == 1) {
             do {
-                newX = mRandom.nextInt(mRow - 1);
-                newY = mRandom.nextInt(mColumn - 1);
+                newX = mRandom.nextInt(mRow);
+                newY = mRandom.nextInt(mColumn);
             } while (models[newX][newY].getNumber() != 0);
 
             //calcValue(newX, newY);
@@ -503,7 +503,7 @@ public class Play2048Group extends ViewGroup {
             int temp = 0;
 
             do {
-                temp = mRandom.nextInt(mRow - 1);
+                temp = mRandom.nextInt(mRow);
             } while (temp == 0 || temp == 2);
 
             Log.i(TAG, "nextRand temp:  " + temp + " newX: " + newX + " newY: " + newY);
